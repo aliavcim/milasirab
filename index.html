@@ -36,27 +36,44 @@ body {
     box-shadow: 0 10px 40px rgba(0,0,0,0.2);
 }
 
-button {
-    border: none;
-    border-radius: 15px;
-    padding: 12px 20px;
-    margin: 10px;
-    font-size: 16px;
-    cursor: pointer;
+input {
+    padding:10px;
+    border-radius:10px;
+    border:none;
+    width:80%;
+    margin-top:10px;
 }
 
-.yes { background:#4CAF50; color:white; }
-.no  { background:#ff4d4d; color:white; font-size:11px; position:absolute; }
+button {
+    border:none;
+    border-radius:15px;
+    padding:12px 20px;
+    margin:10px;
+    cursor:pointer;
+}
 
+.yes { background:#4CAF50;color:white;}
+.no { background:#ff4d4d;color:white;font-size:11px;position:absolute;}
+
+.fade {
+    animation: fade 1s;
+}
+@keyframes fade {
+    from{opacity:0; transform:translateY(20px)}
+    to{opacity:1; transform:translateY(0)}
+}
+
+/* kalpler */
 .heart {
     position:absolute;
     animation:float 5s linear infinite;
 }
 @keyframes float {
-    0%{transform:translateY(100vh);opacity:1}
+    0%{transform:translateY(100vh)}
     100%{transform:translateY(-10vh);opacity:0}
 }
 
+/* konfeti */
 .confetti {
     position:fixed;
     width:8px;
@@ -64,26 +81,14 @@ button {
     animation:fall 3s linear infinite;
 }
 @keyframes fall {
-    0%{transform:translateY(-10vh) rotate(0)}
+    0%{transform:translateY(-10vh)}
     100%{transform:translateY(110vh) rotate(720deg)}
 }
 
-.final-text {
-    font-size: 26px;
-    color: #ff0080;
-    margin-bottom: 10px;
-}
-
-.sub-text {
-    font-size: 16px;
-    margin-bottom: 15px;
-}
-
-.final-img {
-    max-width: 100%;
-    border-radius: 15px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-    cursor: pointer;
+.final-img{
+    max-width:100%;
+    border-radius:15px;
+    margin-top:10px;
 }
 </style>
 
@@ -92,13 +97,12 @@ button {
 <body>
 
 <div class="box" id="app"></div>
-
-<audio id="music" src="music.mp3" preload="auto"></audio>
+<audio id="music" src="music.mp3"></audio>
 
 <script>
+let name="";
 let noCount=0;
 let timer;
-let vibeInterval;
 
 // kalpler
 setInterval(()=>{
@@ -106,7 +110,6 @@ setInterval(()=>{
  h.className="heart";
  h.innerHTML="💖";
  h.style.left=Math.random()*100+"vw";
- h.style.fontSize=(15+Math.random()*25)+"px";
  document.body.appendChild(h);
  setTimeout(()=>h.remove(),5000);
 },300);
@@ -115,34 +118,57 @@ function vibrate(ms=100){
  if(navigator.vibrate) navigator.vibrate(ms);
 }
 
-// müzik
 function playMusic(){
  let m=document.getElementById("music");
  m.volume=0.4;
  m.play().catch(()=>{});
-
- // ritim titreşim
- vibeInterval = setInterval(()=>{
-    vibrate(80);
- }, 600);
 }
 
-// yazı efekti
-function typeWriter(el, text, speed=40){
+// TYPE EFFECT
+function typeWriter(el,text,speed=40){
  let i=0;
  function write(){
-    if(i<text.length){
-        el.innerHTML += text.charAt(i);
-        i++;
-        setTimeout(write, speed);
-    }
+  if(i<text.length){
+   el.innerHTML+=text.charAt(i);
+   i++;
+   setTimeout(write,speed);
+  }
  }
  write();
 }
 
+// 1️⃣ İSİM EKRANI
+function intro(){
+document.getElementById("app").innerHTML=`
+<h2>İsmini yaz 💖</h2>
+<input id="nameInput" placeholder="Adın...">
+<br>
+<button onclick="start()">Devam</button>
+`;
+}
+
+function start(){
+name=document.getElementById("nameInput").value || "Sevgilim";
+
+document.getElementById("app").innerHTML=`
+<h2 id="line1"></h2>
+<h3 id="line2"></h3>
+`;
+
+typeWriter(document.getElementById("line1"),"Sevgili "+name+" 💕",50);
+
+setTimeout(()=>{
+ typeWriter(document.getElementById("line2"),"Sana birkaç sorumuz olacak...",40);
+},1500);
+
+// sonra soru ekranına geç
+setTimeout(first,4000);
+}
+
+// 2️⃣ SORU
 function first(){
 document.getElementById("app").innerHTML=`
-<h2>Mila benimle barışır mısın? 💕</h2>
+<h2>${name}, benimle barışır mısın? 💕</h2>
 <button id="yes" class="yes">Evet</button>
 <button id="no" class="no">Hayır</button>
 `;
@@ -150,16 +176,12 @@ document.getElementById("app").innerHTML=`
 let yes=document.getElementById("yes");
 let no=document.getElementById("no");
 
-yes.onclick=()=>{
- vibrate();
- final();
-};
+yes.onclick=()=>{ final(); };
 
 function move(){
  noCount++;
  no.style.top=Math.random()*80+"%";
  no.style.left=Math.random()*80+"%";
- vibrate();
 
  if(noCount>=5){
   alert("Yanlış cevap 😈");
@@ -171,15 +193,16 @@ no.addEventListener("mouseover",move);
 no.addEventListener("touchstart",move);
 }
 
+// 3️⃣ İKİNCİ
 function second(){
 document.getElementById("app").innerHTML=`
-<h2>Mila benimle barışır mısın? 😏</h2>
+<h2>${name}, benimle barışır mısın? 😏</h2>
 <button onclick="final()">Evet</button>
 <button onclick="final()">Evet</button>
 `;
 
 timer=setTimeout(()=>{
- alert("Cevabınız evet sayıldı 😎");
+ alert("Cevap evet sayıldı 😎");
  final();
 },10000);
 }
@@ -191,61 +214,27 @@ for(let i=0;i<100;i++){
  c.className="confetti";
  c.style.left=Math.random()*100+"vw";
  c.style.background="hsl("+Math.random()*360+"deg,100%,50%)";
- c.style.animationDuration=(2+Math.random()*3)+"s";
  document.body.appendChild(c);
 }
 }
 
-// kalp patlaması
-function heartExplosion(x,y){
- for(let i=0;i<20;i++){
-  let h=document.createElement("div");
-  h.innerHTML="💖";
-  h.style.position="fixed";
-  h.style.left=x+"px";
-  h.style.top=y+"px";
-  h.style.fontSize="20px";
-  h.style.transition="1s";
-  document.body.appendChild(h);
-
-  setTimeout(()=>{
-    h.style.left=(x + (Math.random()*200-100))+"px";
-    h.style.top=(y + (Math.random()*200-100))+"px";
-    h.style.opacity=0;
-  },10);
-
-  setTimeout(()=>h.remove(),1000);
- }
-}
-
-// final
+// FINAL
 function final(){
 clearTimeout(timer);
 
 document.getElementById("app").innerHTML=`
-<div class="final-text" id="mainText"></div>
-<div class="sub-text" id="subText"></div>
-<img src="image.png" class="final-img" id="img">
+<h2>BARISTIIIIKKKKK!!!!! 💖🎉</h2>
+<p>Şarkı seçimim harika dimi</p>
+<img src="image.png" class="final-img">
 `;
 
 confetti();
 playMusic();
 vibrate(200);
-
-// yazı yazı efekti
-typeWriter(document.getElementById("mainText"),"BARISTIIIIKKKKK!!!!! 💖🎉",40);
-
-setTimeout(()=>{
- typeWriter(document.getElementById("subText"),"Şarkı seçimim harika dimi",30);
-},1500);
-
-// resme tıklayınca kalp patlat
-document.getElementById("img").onclick=(e)=>{
- heartExplosion(e.clientX,e.clientY);
-};
 }
 
-first();
+// başlat
+intro();
 </script>
 
 </body>
