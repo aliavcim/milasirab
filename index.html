@@ -11,7 +11,15 @@ body {
     margin:0;
     font-family:sans-serif;
     overflow:hidden;
-    background:black;
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fbc2eb, #a6c1ee);
+    background-size: 400% 400%;
+    animation: bgAnim 10s ease infinite;
+}
+
+@keyframes bgAnim {
+    0% {background-position:0% 50%;}
+    50% {background-position:100% 50%;}
+    100% {background-position:0% 50%;}
 }
 
 .screen {
@@ -23,37 +31,56 @@ body {
     flex-direction:column;
     color:white;
     text-align:center;
-}
-
-.slide {
-    position:absolute;
-    width:100%;
-    height:100%;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    flex-direction:column;
-    transition:0.6s;
+    backdrop-filter: blur(10px);
 }
 
 img {
     max-width:80%;
     border-radius:20px;
     margin-bottom:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.3);
+    animation: fadeIn 1s;
+}
+
+h1,h2,p {
+    animation: fadeInUp 1s;
+}
+
+@keyframes fadeIn {
+    from {opacity:0;}
+    to {opacity:1;}
+}
+
+@keyframes fadeInUp {
+    from {opacity:0; transform:translateY(20px);}
+    to {opacity:1; transform:translateY(0);}
 }
 
 button {
-    padding:10px 20px;
+    padding:12px 25px;
     border:none;
-    border-radius:10px;
+    border-radius:12px;
+    font-size:16px;
+    cursor:pointer;
+    margin:5px;
+    transition:0.3s;
 }
 
-.yes{background:#4CAF50;color:white;}
-.no{background:red;color:white;font-size:10px;position:absolute;}
+button:hover {
+    transform:scale(1.1);
+}
 
-.hidden {opacity:0; transform:translateX(100%);}
-.active {opacity:1; transform:translateX(0);}
-.prev {opacity:0; transform:translateX(-100%);}
+.yes{
+    background:#4CAF50;
+    color:white;
+}
+
+.no{
+    background:red;
+    color:white;
+    font-size:10px;
+    position:absolute;
+}
 </style>
 
 </head>
@@ -68,12 +95,11 @@ let name="";
 let current=0;
 let slides=[];
 
-// İSİM
 function intro(){
 document.getElementById("app").innerHTML=`
 <div class="screen">
 <h2>İsmini yaz 💖</h2>
-<input id="nameInput">
+<input id="nameInput" style="padding:10px;border-radius:10px;border:none;">
 <br><br>
 <button onclick="start()">Devam</button>
 </div>
@@ -85,7 +111,6 @@ name=document.getElementById("nameInput").value||"Sevgilim";
 wrapped();
 }
 
-// WRAPPED
 function wrapped(){
 slides=[
 `<h1>Sevgili ${name} 💕</h1><p>Seninle anılarımıza bakalım...</p>`,
@@ -100,7 +125,6 @@ slides=[
 renderSlide();
 autoSlide();
 
-// swipe
 let startX=0;
 document.addEventListener("touchstart",e=>{
  startX=e.touches[0].clientX;
@@ -115,7 +139,7 @@ document.addEventListener("touchend",e=>{
 
 function renderSlide(){
 document.getElementById("app").innerHTML=`
-<div class="screen fade">${slides[current]}</div>
+<div class="screen">${slides[current]}</div>
 `;
 }
 
@@ -143,7 +167,6 @@ setInterval(()=>{
 },3000);
 }
 
-// SORU
 let noCount=0;
 let timer;
 
@@ -191,7 +214,6 @@ timer=setTimeout(()=>{
 },10000);
 }
 
-// FINAL
 function final(){
 clearTimeout(timer);
 
@@ -206,7 +228,6 @@ document.getElementById("app").innerHTML=`
 document.getElementById("music").play().catch(()=>{});
 }
 
-// başlat
 intro();
 </script>
 
