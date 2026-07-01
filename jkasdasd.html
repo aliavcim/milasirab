@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mila 💖</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(-45deg,#ff9a9e,#fad0c4,#fbc2eb,#a6c1ee);
+    background-size: 400% 400%;
+    animation: bg 10s infinite;
+}
+
+@keyframes bg {
+    0%{background-position:0%}
+    50%{background-position:100%}
+    100%{background-position:0%}
+}
+
+.box {
+    width: 90%;
+    max-width: 400px;
+    background: rgba(255,255,255,0.95);
+    padding: 25px;
+    border-radius: 25px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+button {
+    border: none;
+    border-radius: 15px;
+    padding: 12px 20px;
+    margin: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.yes { background:#4CAF50; color:white; }
+.no  { background:#ff4d4d; color:white; font-size:11px; position:absolute; }
+
+.heart {
+    position:absolute;
+    animation:float 5s linear infinite;
+}
+@keyframes float {
+    0%{transform:translateY(100vh);opacity:1}
+    100%{transform:translateY(-10vh);opacity:0}
+}
+
+.confetti {
+    position:fixed;
+    width:8px;
+    height:8px;
+    animation:fall 3s linear infinite;
+}
+@keyframes fall {
+    0%{transform:translateY(-10vh) rotate(0)}
+    100%{transform:translateY(110vh) rotate(720deg)}
+}
+
+.final-text {
+    font-size: 26px;
+    color: #ff0080;
+    margin-bottom: 10px;
+}
+
+.sub-text {
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+.final-img {
+    max-width: 100%;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    cursor: pointer;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="box" id="app"></div>
+
+<audio id="music" src="music.mp3" preload="auto"></audio>
+
+<script>
+let noCount=0;
+let timer;
+let vibeInterval;
+
+// kalpler
+setInterval(()=>{
+ let h=document.createElement("div");
+ h.className="heart";
+ h.innerHTML="💖";
+ h.style.left=Math.random()*100+"vw";
+ h.style.fontSize=(15+Math.random()*25)+"px";
+ document.body.appendChild(h);
+ setTimeout(()=>h.remove(),5000);
+},300);
+
+function vibrate(ms=100){
+ if(navigator.vibrate) navigator.vibrate(ms);
+}
+
+// müzik
+function playMusic(){
+ let m=document.getElementById("music");
+ m.volume=0.4;
+ m.play().catch(()=>{});
+
+ // ritim titreşim
+ vibeInterval = setInterval(()=>{
+    vibrate(80);
+ }, 600);
+}
+
+// yazı efekti
+function typeWriter(el, text, speed=40){
+ let i=0;
+ function write(){
+    if(i<text.length){
+        el.innerHTML += text.charAt(i);
+        i++;
+        setTimeout(write, speed);
+    }
+ }
+ write();
+}
+
+function first(){
+document.getElementById("app").innerHTML=`
+<h2>Mila benimle barışır mısın? 💕</h2>
+<button id="yes" class="yes">Evet</button>
+<button id="no" class="no">Hayır</button>
+`;
+
+let yes=document.getElementById("yes");
+let no=document.getElementById("no");
+
+yes.onclick=()=>{
+ vibrate();
+ final();
+};
+
+function move(){
+ noCount++;
+ no.style.top=Math.random()*80+"%";
+ no.style.left=Math.random()*80+"%";
+ vibrate();
+
+ if(noCount>=5){
+  alert("Yanlış cevap 😈");
+  second();
+ }
+}
+
+no.addEventListener("mouseover",move);
+no.addEventListener("touchstart",move);
+}
+
+function second(){
+document.getElementById("app").innerHTML=`
+<h2>Mila benimle barışır mısın? 😏</h2>
+<button onclick="final()">Evet</button>
+<button onclick="final()">Evet</button>
+`;
+
+timer=setTimeout(()=>{
+ alert("Cevabınız evet sayıldı 😎");
+ final();
+},10000);
+}
+
+// konfeti
+function confetti(){
+for(let i=0;i<100;i++){
+ let c=document.createElement("div");
+ c.className="confetti";
+ c.style.left=Math.random()*100+"vw";
+ c.style.background="hsl("+Math.random()*360+"deg,100%,50%)";
+ c.style.animationDuration=(2+Math.random()*3)+"s";
+ document.body.appendChild(c);
+}
+}
+
+// kalp patlaması
+function heartExplosion(x,y){
+ for(let i=0;i<20;i++){
+  let h=document.createElement("div");
+  h.innerHTML="💖";
+  h.style.position="fixed";
+  h.style.left=x+"px";
+  h.style.top=y+"px";
+  h.style.fontSize="20px";
+  h.style.transition="1s";
+  document.body.appendChild(h);
+
+  setTimeout(()=>{
+    h.style.left=(x + (Math.random()*200-100))+"px";
+    h.style.top=(y + (Math.random()*200-100))+"px";
+    h.style.opacity=0;
+  },10);
+
+  setTimeout(()=>h.remove(),1000);
+ }
+}
+
+// final
+function final(){
+clearTimeout(timer);
+
+document.getElementById("app").innerHTML=`
+<div class="final-text" id="mainText"></div>
+<div class="sub-text" id="subText"></div>
+<img src="image.png" class="final-img" id="img">
+`;
+
+confetti();
+playMusic();
+vibrate(200);
+
+// yazı yazı efekti
+typeWriter(document.getElementById("mainText"),"BARISTIIIIKKKKK!!!!! 💖🎉",40);
+
+setTimeout(()=>{
+ typeWriter(document.getElementById("subText"),"Şarkı seçimim harika dimi",30);
+},1500);
+
+// resme tıklayınca kalp patlat
+document.getElementById("img").onclick=(e)=>{
+ heartExplosion(e.clientX,e.clientY);
+};
+}
+
+first();
+</script>
+
+</body>
+</html>
