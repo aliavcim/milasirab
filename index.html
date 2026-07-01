@@ -8,175 +8,158 @@
 
 <style>
 body {
-    margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    overflow: hidden;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(-45deg,#ff9a9e,#fad0c4,#fbc2eb,#a6c1ee);
-    background-size: 400% 400%;
-    animation: bg 10s infinite;
+    margin:0;
+    font-family:sans-serif;
+    overflow:hidden;
+    background:black;
 }
 
-@keyframes bg {
-    0%{background-position:0%}
-    50%{background-position:100%}
-    100%{background-position:0%}
+.screen {
+    width:100vw;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    color:white;
+    text-align:center;
 }
 
-.box {
-    width: 90%;
-    max-width: 400px;
-    background: rgba(255,255,255,0.95);
-    padding: 25px;
-    border-radius: 25px;
-    text-align: center;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+.slide {
+    position:absolute;
+    width:100%;
+    height:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    transition:0.6s;
 }
 
-input {
-    padding:10px;
-    border-radius:10px;
-    border:none;
-    width:80%;
-    margin-top:10px;
+img {
+    max-width:80%;
+    border-radius:20px;
+    margin-bottom:20px;
 }
 
 button {
+    padding:10px 20px;
     border:none;
-    border-radius:15px;
-    padding:12px 20px;
-    margin:10px;
-    cursor:pointer;
+    border-radius:10px;
 }
 
-.yes { background:#4CAF50;color:white;}
-.no { background:#ff4d4d;color:white;font-size:11px;position:absolute;}
+.yes{background:#4CAF50;color:white;}
+.no{background:red;color:white;font-size:10px;position:absolute;}
 
-.fade {
-    animation: fade 1s;
-}
-@keyframes fade {
-    from{opacity:0; transform:translateY(20px)}
-    to{opacity:1; transform:translateY(0)}
-}
-
-/* kalpler */
-.heart {
-    position:absolute;
-    animation:float 5s linear infinite;
-}
-@keyframes float {
-    0%{transform:translateY(100vh)}
-    100%{transform:translateY(-10vh);opacity:0}
-}
-
-/* konfeti */
-.confetti {
-    position:fixed;
-    width:8px;
-    height:8px;
-    animation:fall 3s linear infinite;
-}
-@keyframes fall {
-    0%{transform:translateY(-10vh)}
-    100%{transform:translateY(110vh) rotate(720deg)}
-}
-
-.final-img{
-    max-width:100%;
-    border-radius:15px;
-    margin-top:10px;
-}
+.hidden {opacity:0; transform:translateX(100%);}
+.active {opacity:1; transform:translateX(0);}
+.prev {opacity:0; transform:translateX(-100%);}
 </style>
 
 </head>
 
 <body>
 
-<div class="box" id="app"></div>
+<div id="app"></div>
 <audio id="music" src="music.mp3"></audio>
 
 <script>
 let name="";
-let noCount=0;
-let timer;
+let current=0;
+let slides=[];
 
-// kalpler
-setInterval(()=>{
- let h=document.createElement("div");
- h.className="heart";
- h.innerHTML="💖";
- h.style.left=Math.random()*100+"vw";
- document.body.appendChild(h);
- setTimeout(()=>h.remove(),5000);
-},300);
-
-function vibrate(ms=100){
- if(navigator.vibrate) navigator.vibrate(ms);
-}
-
-function playMusic(){
- let m=document.getElementById("music");
- m.volume=0.4;
- m.play().catch(()=>{});
-}
-
-// TYPE EFFECT
-function typeWriter(el,text,speed=40){
- let i=0;
- function write(){
-  if(i<text.length){
-   el.innerHTML+=text.charAt(i);
-   i++;
-   setTimeout(write,speed);
-  }
- }
- write();
-}
-
-// 1️⃣ İSİM EKRANI
+// İSİM
 function intro(){
 document.getElementById("app").innerHTML=`
+<div class="screen">
 <h2>İsmini yaz 💖</h2>
-<input id="nameInput" placeholder="Adın...">
-<br>
+<input id="nameInput">
+<br><br>
 <button onclick="start()">Devam</button>
+</div>
 `;
 }
 
 function start(){
-name=document.getElementById("nameInput").value || "Sevgilim";
-
-document.getElementById("app").innerHTML=`
-<h2 id="line1"></h2>
-<h3 id="line2"></h3>
-`;
-
-typeWriter(document.getElementById("line1"),"Sevgili "+name+" 💕",50);
-
-setTimeout(()=>{
- typeWriter(document.getElementById("line2"),"Sana birkaç sorumuz olacak...",40);
-},1500);
-
-// sonra soru ekranına geç
-setTimeout(first,4000);
+name=document.getElementById("nameInput").value||"Sevgilim";
+wrapped();
 }
 
-// 2️⃣ SORU
+// WRAPPED
+function wrapped(){
+slides=[
+`<h1>Sevgili ${name} 💕</h1><p>Seninle anılarımıza bakalım...</p>`,
+`<img src="image1.png"><p>Başlangıç 💖</p>`,
+`<img src="image2.png"><p>En tatlı halin 🥺</p>`,
+`<img src="image3.png"><p>Unutulmaz an 💫</p>`,
+`<img src="image4.png"><p>Gülüşün 😍</p>`,
+`<img src="image5.png"><p>Ve şimdi...</p>`,
+`<h1>Hazır mısın? 😏</h1>`
+];
+
+renderSlide();
+autoSlide();
+
+// swipe
+let startX=0;
+document.addEventListener("touchstart",e=>{
+ startX=e.touches[0].clientX;
+});
+
+document.addEventListener("touchend",e=>{
+ let endX=e.changedTouches[0].clientX;
+ if(endX<startX-50) nextSlide();
+ if(endX>startX+50) prevSlide();
+});
+}
+
+function renderSlide(){
+document.getElementById("app").innerHTML=`
+<div class="screen fade">${slides[current]}</div>
+`;
+}
+
+function nextSlide(){
+current++;
+if(current>=slides.length){
+ first();
+ return;
+}
+renderSlide();
+}
+
+function prevSlide(){
+if(current>0){
+ current--;
+ renderSlide();
+}
+}
+
+function autoSlide(){
+setInterval(()=>{
+ if(current<slides.length){
+  nextSlide();
+ }
+},3000);
+}
+
+// SORU
+let noCount=0;
+let timer;
+
 function first(){
 document.getElementById("app").innerHTML=`
+<div class="screen">
 <h2>${name}, benimle barışır mısın? 💕</h2>
 <button id="yes" class="yes">Evet</button>
 <button id="no" class="no">Hayır</button>
+</div>
 `;
 
 let yes=document.getElementById("yes");
 let no=document.getElementById("no");
 
-yes.onclick=()=>{ final(); };
+yes.onclick=()=>final();
 
 function move(){
  noCount++;
@@ -193,12 +176,13 @@ no.addEventListener("mouseover",move);
 no.addEventListener("touchstart",move);
 }
 
-// 3️⃣ İKİNCİ
 function second(){
 document.getElementById("app").innerHTML=`
+<div class="screen">
 <h2>${name}, benimle barışır mısın? 😏</h2>
 <button onclick="final()">Evet</button>
 <button onclick="final()">Evet</button>
+</div>
 `;
 
 timer=setTimeout(()=>{
@@ -207,30 +191,19 @@ timer=setTimeout(()=>{
 },10000);
 }
 
-// konfeti
-function confetti(){
-for(let i=0;i<100;i++){
- let c=document.createElement("div");
- c.className="confetti";
- c.style.left=Math.random()*100+"vw";
- c.style.background="hsl("+Math.random()*360+"deg,100%,50%)";
- document.body.appendChild(c);
-}
-}
-
 // FINAL
 function final(){
 clearTimeout(timer);
 
 document.getElementById("app").innerHTML=`
-<h2>BARISTIIIIKKKKK!!!!! 💖🎉</h2>
-<p>Şarkı seçimim harika dimi</p>
-<img src="image.png" class="final-img">
+<div class="screen">
+<h1>BARISTIIIIKKKKK!!!!! 💖🎉</h1>
+<p>Şarkı seçimim harika dimi - Ali 😎</p>
+<img src="image.png">
+</div>
 `;
 
-confetti();
-playMusic();
-vibrate(200);
+document.getElementById("music").play().catch(()=>{});
 }
 
 // başlat
